@@ -1,8 +1,6 @@
 package com.company;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class Zamowienie {
@@ -11,17 +9,16 @@ public class Zamowienie {
     int numerZamowienia;
     Klient klient;
     boolean czyGotowe;
-    LocalDate data;
+    LocalDateTime data;
     ArrayList<PozycjaMenu> pozycje = new ArrayList<>();
 
     public Zamowienie(Klient klient){
         czyGotowe = false;
-        LocalDate now = LocalDate.now();
         this.klient = klient;
-        data = LocalDate.now();
+        data = LocalDateTime.now();
         if(zamowienia.size() != 0) {
             Zamowienie ostatnieZamowienie = zamowienia.get(zamowienia.size() -1);
-            if(ostatnieZamowienie.data.getDayOfMonth() == now.getDayOfMonth()){
+            if(ostatnieZamowienie.data.getDayOfMonth() == data.getDayOfMonth()){
                 numerZamowienia = ostatnieZamowienie.numerZamowienia + 1;
             } else {
                 numerZamowienia = 1;

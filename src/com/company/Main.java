@@ -6,9 +6,18 @@ import java.util.List;
 
 
 public class Main {
-    //TODO: stolik nr stolika
-    //TODO: godzina z minutami zamowienie
-    //TODO: jesli ilosc produktu < 0 set dostepny = false
+    //TODO: 1 pozycja -> 30s po zrealizowaniu wszysztkich zamowienie: done
+    //TODO: czas > 15 min -> zamowienie przedawnione -> spytaj klienta czy dalej chce swoje zamowienie, jesli tak to 20% znizki i zamowienie wykona sie jako kolejne
+    //TODO: dzienny utarg
+    //TODO: zmniejszyc czas wykonywania dania po dodaniu nowego kucharza
+    //TODO: dostawca -> 2 min dostawa
+    //TODO: spytaj klienta czy chce dac napiwek w wyskosci 10% zamowienia, powyzej 15 min dostawy mniejszy
+    //TODO: wypisz zrealizowane zamowienia w odpowiedniej kolejnosci
+    //TODO: wyjatek przy wywaleniu pracownika
+    //TODO: wypisanie danych o pracowniku + napiwek + zrealizowane zamowienia
+
+
+
 
     static String menuFilePath = "./data/menu.txt";
     static List<Kucharz> kucharze = new ArrayList<>();
@@ -18,8 +27,11 @@ public class Main {
 
 
     public static void showList(List<PozycjaMenu> menu) {
+
         for (PozycjaMenu poz : menu) {
-            System.out.println(poz.id + ". " + poz.name + " - " + poz.opis + " - " + poz.cena);
+            if (poz.ilosc != 0) {
+                System.out.println(poz.id + ". " + poz.name + " - " + poz.opis + " - " + poz.cena + " - " + poz.ilosc);
+            }
         }
     }
 
@@ -88,7 +100,6 @@ public class Main {
     }
 
     public static int randomQ(int iloscPozycji){
-        // TODO: losowanie ilosci pozycji z menu od 1 do menu.size();
         iloscPozycji = (int)((Math.random()*(menu.size()-1))+1);
         return iloscPozycji;
     }
@@ -178,7 +189,7 @@ public class Main {
                             }
                         }
                     }else{
-                        for (int i = 0; i < iloscPoyzcji; i++){
+                        for (int i = 0; i < iloscPoyzcji; i++) {
                             idPozycji = randomQ(idPozycji);
                             System.out.println("Wybrana została opcja " + idPozycji);
                             for (PozycjaMenu poz : menu) {
@@ -188,7 +199,12 @@ public class Main {
                             }
                         }
                     }
+                    for(PozycjaMenu poz : zamowienie.pozycje){
+                        menu.get(menu.indexOf(poz)).ilosc--;
+                    }
+                    updateMenu(menu);
                     Kuchnia.dodajZamowienie(zamowienie);
+
 
                 } else if (jakieZamowienie == 2) {
                     nrStolika += nrStolika;
@@ -228,6 +244,10 @@ public class Main {
                             }
                         }
                     }
+                    for(PozycjaMenu poz : zamowienie.pozycje){
+                        menu.get(menu.indexOf(poz)).ilosc--;
+                    }
+                    updateMenu(menu);
                     Kuchnia.dodajZamowienie(zamowienie);
                 }
             } else if (podajId == idPracownik) {

@@ -37,8 +37,7 @@ public class PozycjaMenu implements Serializable {
     }
 
 
-    @Override
-    public String toString() {
+    public String taoString() {
         return id + " - " + name + ", opis: " + opis + ", cena: " + cena;
     }
 }

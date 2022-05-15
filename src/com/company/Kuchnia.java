@@ -13,6 +13,8 @@ public class Kuchnia {
         zamowienia = new ArrayList<>();
     }
 
+
+
     public void dodajZamowienie(Zamowienie nowe){
         zamowienia.add(nowe);
         // TODO: sortowanie

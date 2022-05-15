@@ -11,6 +11,7 @@ public class Main {
     static List<Kucharz> kucharze = new ArrayList<>();
     static List<Dostawca> dostawcy = new ArrayList<>();
     static List<Kelner> kelnerzy = new ArrayList<>();
+    static ArrayList<PozycjaMenu> menu = mockMenu();
 
 
     public static void showList(List<PozycjaMenu> menu) {
@@ -78,6 +79,17 @@ public class Main {
         return menu;
     }
 
+    public static int randomLocation(int jakieZamowienie){
+        jakieZamowienie = (int)((Math.random()*2)+1);
+        return jakieZamowienie;
+    }
+
+    public static int randomQ(int iloscPozycji){
+        // TODO: losowanie ilosci pozycji z menu od 1 do menu.size();
+        iloscPozycji = (int)((Math.random()*(menu.size()-1))+1);
+        return iloscPozycji;
+    }
+
 
     public static void main(String[] args) {
 
@@ -86,7 +98,7 @@ public class Main {
 
         //-----------------------------------------------------------------------
 
-        ArrayList<PozycjaMenu> menu = mockMenu();
+
 
 
         new Kucharz("Marek", "Kowalski", "509867122", 3500);
@@ -116,8 +128,17 @@ public class Main {
                 // Wypisanie menu
                 menu = readMenu();
                 showList(menu);
-                System.out.println("\nCzy chcesz dokonać zamówienia online (1) czy stacjonarnie (2)?");
-                int jakieZamowienie = in.nextInt();
+                int jakieZamowienie = 0;
+                System.out.println("Czy chcesz samodzielnie dokonać wyboru lokalizacji(online(1)/stacjonarnie(2)) - 1 czy pozostawić losowy wybór - 2?");
+                int czyLosowo1 = in.nextInt();
+                if(czyLosowo1 == 1){
+                    System.out.println("\nCzy chcesz dokonać zamówienia online (1) czy stacjonarnie (2)?");
+                    jakieZamowienie = in.nextInt();
+                }else{
+                    jakieZamowienie = randomLocation(jakieZamowienie);
+                    System.out.println("Wybrana została opcja " + jakieZamowienie);
+                }
+
                 String imie = "";
                 String nazwisko = "";
                 ZarzadzaniePracownikami zarzadzaniePracownikami = new ZarzadzaniePracownikami();
@@ -130,17 +151,41 @@ public class Main {
                     adres = zarzadzanieMenu.walidacjaAdres(adres);
                     Klient klientOnline = new KlientOnline(imie, nazwisko, true, adres);
                     Zamowienie zamowienie = new Zamowienie(klientOnline);
-                    System.out.println("Ile pozycji z menu chciałbyś zamówić?");
-                    int iloscPoyzcji = in.nextInt();
-                    for (int i = 0; i < iloscPoyzcji; i++) {
-                        System.out.println("Podaj id pozycji, która chciałbyś zamówić:");
-                        int idPozycji = in.nextInt();
-                        for (PozycjaMenu poz : menu) {
-                            if (poz.id == idPozycji) {
-                                zamowienie.zlozZamowienie(poz);
+                    int iloscPoyzcji = 0;
+                    System.out.println("Czy chcesz samodzielnie dokonać wyboru ilości pozycji - 1 czy pozostawić losowy wybór - 2?");
+                    int czyLosowy2 = in.nextInt();
+                    if(czyLosowy2 == 1){
+                        System.out.println("Ile pozycji z menu chciałbyś zamówić?");
+                        iloscPoyzcji = in.nextInt();
+                    }else{
+                        iloscPoyzcji = randomQ(iloscPoyzcji);
+                        System.out.println("Wybrana zostało " + iloscPoyzcji + " pozycji");
+                    }
+                    int idPozycji = 0;
+                    System.out.println("Czy chcesz samodzielnie dokonać wyboru pozycji - 1 czy pozostawić losowy wybór - 2?");
+                    int czyLosowy3 = in.nextInt();
+                    if(czyLosowy3 == 1){
+                        for (int i = 0; i < iloscPoyzcji; i++) {
+                            System.out.println("Podaj id pozycji, która chciałbyś zamówić:");
+                            idPozycji = in.nextInt();
+                            for (PozycjaMenu poz : menu) {
+                                if (poz.id == idPozycji) {
+                                    zamowienie.zlozZamowienie(poz);
+                                }
+                            }
+                        }
+                    }else{
+                        for (int i = 0; i < iloscPoyzcji; i++){
+                            idPozycji = randomQ(idPozycji);
+                            System.out.println("Wybrana została opcja " + idPozycji);
+                            for (PozycjaMenu poz : menu) {
+                                if (poz.id == idPozycji) {
+                                    zamowienie.zlozZamowienie(poz);
+                                }
                             }
                         }
                     }
+
                 } else if (jakieZamowienie == 2) {
                     nrStolika += nrStolika;
                     Klient klientStacjonarny = new KlientStacjonarny(imie, nazwisko, nrStolika);
@@ -153,169 +198,159 @@ public class Main {
                 int podajHaslo = in.nextInt();
 
                 if (podajHaslo == password) {
-                    System.out.println("Jako kto chcesz się zalogować?");
-                    System.out.println("Menedżer - 0\nKucharz - 1\nDostawca - 2\nKelner - 3");
-                    int stanowisko = in.nextInt();
-                    if (stanowisko == 0) {
+
+                    System.out.println("Co chciałbyś zrobić?");
+                    System.out.println("Zarządzanie menu - 1\nZarządzanie pracownikami - 2");
+                    int zarzadzanie = in.nextInt();
+                    if (zarzadzanie == 1) {
                         System.out.println("Co chciałbyś zrobić?");
-                        System.out.println("Zarządzanie menu - 1\nZarządzanie pracownikami - 2");
-                        int zarzadzanie = in.nextInt();
-                        if (zarzadzanie == 1) {
-                            System.out.println("Co chciałbyś zrobić?");
-                            System.out.println("Dodanie pozycji do menu - 1\nUsunięcie pozycji z menu - 2\nEdycja pozycji z menu - 3");
-                            int coChceszZrobic = in.nextInt();
-                            ZarzadzanieMenu zarzadzanieMenu = new ZarzadzanieMenu();
-                            if (coChceszZrobic == 1) {
+                        System.out.println("Dodanie pozycji do menu - 1\nUsunięcie pozycji z menu - 2\nEdycja pozycji z menu - 3");
+                        int coChceszZrobic = in.nextInt();
+                        ZarzadzanieMenu zarzadzanieMenu = new ZarzadzanieMenu();
+                        if (coChceszZrobic == 1) {
 
-                                System.out.println("menu przed dodaniem nowej pozycji: ");
-                                showList(menu);
+                            System.out.println("menu przed dodaniem nowej pozycji: ");
+                            showList(menu);
 
-                                // Dodanie pozycji do menu
+                            // Dodanie pozycji do menu
 
-                                //walidacja nazwy
-                                String nazwa = "";
-                                nazwa = zarzadzanieMenu.walidacjaNazwa(nazwa);
+                            //walidacja nazwy
+                            String nazwa = "";
+                            nazwa = zarzadzanieMenu.walidacjaNazwa(nazwa);
 
-                                //walidacja opisu
-                                String opis = "";
-                                opis = zarzadzanieMenu.walidacjaOpis(opis);
+                            //walidacja opisu
+                            String opis = "";
+                            opis = zarzadzanieMenu.walidacjaOpis(opis);
 
-                                //walidacja ceny
-                                double cena = 0;
-                                cena = zarzadzanieMenu.walidacjaCena(cena);
+                            //walidacja ceny
+                            double cena = 0;
+                            cena = zarzadzanieMenu.walidacjaCena(cena);
 
-                                //walidacja ilosci
-                                int ilosc = 0;
-                                ilosc = zarzadzanieMenu.walidacjaIlosci(ilosc);
+                            //walidacja ilosci
+                            int ilosc = 0;
+                            ilosc = zarzadzanieMenu.walidacjaIlosci(ilosc);
 
-                                PozycjaMenu nowaPozycja = new PozycjaMenu(menu.size() + 1, nazwa, opis, cena, ilosc);
-                                menu.add(nowaPozycja);
+                            PozycjaMenu nowaPozycja = new PozycjaMenu(menu.size() + 1, nazwa, opis, cena, ilosc);
+                            menu.add(nowaPozycja);
 
-                                System.out.println("menu po dodaniu nowej pozycji:");
-                                showList(menu);
-                            } else if (coChceszZrobic == 2) {
-                                // Usunięcie pozycji z menu
-                                System.out.println("menu przed usunięciem: ");
-                                showList(menu);
-                                boolean idxExists = false;
-                                while (!idxExists) {
-                                    System.out.println("podaj id pozycji z menu, którą chcesz usunąć: ");
-                                    int doUsuniecia = in.nextInt();
+                            System.out.println("menu po dodaniu nowej pozycji:");
+                            showList(menu);
+                        } else if (coChceszZrobic == 2) {
+                            // Usunięcie pozycji z menu
+                            System.out.println("menu przed usunięciem: ");
+                            showList(menu);
+                            boolean idxExists = false;
+                            while (!idxExists) {
+                                System.out.println("podaj id pozycji z menu, którą chcesz usunąć: ");
+                                int doUsuniecia = in.nextInt();
 
-                                    //sprawdzenie czy istnieje taki indeks
-                                    if (doUsuniecia < 0 || doUsuniecia > menu.size()) {
-                                        System.out.println("nie ma takiego indeksu");
-                                    } else {
-                                        menu.removeIf(poz -> poz.id == doUsuniecia);
-                                        System.out.println("pozycja nr: " + doUsuniecia + " została usunięta");
-                                        System.out.println("menu po usunięciu: ");
-                                        showList(menu);
-                                        idxExists = true;
-                                    }
-                                }
-
-                            } else if (coChceszZrobic == 3) {
-                                System.out.println("menu przed edycja:");
-                                showList(menu);
-                                // Edycja pozycji z menu
-                                boolean idxExists = false;
-                                //sprawdzenie czy index istnieje
-                                while (!idxExists) {
-                                    System.out.println("podaj id pozycji z menu, którą chcesz edytować: ");
-                                    int doEdycji = in.nextInt();
-                                    if (doEdycji < 0 || doEdycji > menu.size()) {
-                                        System.out.println("nie ma takiego indeksu");
-                                    } else {
-                                        menu.removeIf(poz -> poz.id == doEdycji);
-
-                                        //walidacja nazwy
-                                        String nazwa = "";
-                                        nazwa = zarzadzanieMenu.walidacjaNazwa(nazwa);
-
-                                        //walidacja opisu
-                                        String opis = "";
-                                        opis = zarzadzanieMenu.walidacjaOpis(opis);
-
-                                        //walidacja ilosci
-                                        int ilosc = 0;
-                                        ilosc = zarzadzanieMenu.walidacjaIlosci(ilosc);
-
-                                        //walidacja ceny
-                                        double cena = 0;
-                                        cena = zarzadzanieMenu.walidacjaCena(cena);
-                                        PozycjaMenu poz = new PozycjaMenu(doEdycji, nazwa, opis, cena, ilosc);
-                                        menu.add(doEdycji - 1, poz);
-                                        System.out.println("menu po edycji:");
-                                        showList(menu);
-                                        idxExists = true;
-                                    }
+                                //sprawdzenie czy istnieje taki indeks
+                                if (doUsuniecia < 0 || doUsuniecia > menu.size()) {
+                                    System.out.println("nie ma takiego indeksu");
+                                } else {
+                                    menu.removeIf(poz -> poz.id == doUsuniecia);
+                                    System.out.println("pozycja nr: " + doUsuniecia + " została usunięta");
+                                    System.out.println("menu po usunięciu: ");
+                                    showList(menu);
+                                    idxExists = true;
                                 }
                             }
-                            updateMenu(menu);
 
-                        } else if (zarzadzanie == 2) {
-                            System.out.println("Co chciałbyś zrobić?");
-                            System.out.println("Zatrudnienie nowego pracownika - 1\nZwolenienie pracownika - 2");
-                            int wyborOpcji = in.nextInt();
-                            if (wyborOpcji == 1) {
-                                String name = "";
-                                String surname = "";
-                                String numerTelefonu = "";
-                                double pensja = 0;
-                                ZarzadzaniePracownikami zarzadzaniePracownikami = new ZarzadzaniePracownikami();
-                                name = zarzadzaniePracownikami.dodajImie(name);
-                                surname = zarzadzaniePracownikami.dodajNazwisko(surname);
-                                numerTelefonu = zarzadzaniePracownikami.dodajNrTel(numerTelefonu);
-                                pensja = zarzadzaniePracownikami.dodajPensje(pensja);
-                                System.out.println("Kogo chcesz zatrudnić?");
-                                System.out.println("Kucharz - 1\nDostawca - 2\nKelner - 3");
-                                int wybor = in.nextInt();
-                                if (wybor == 1) {
-                                    new Kucharz(name, surname, numerTelefonu, pensja);
-                                    Pracownik.wypiszPracownikow();
-                                } else if (wybor == 2) {
-                                    new Dostawca(name, surname, numerTelefonu, pensja);
-                                    Pracownik.wypiszPracownikow();
-                                } else if (wybor == 3) {
-                                    new Kelner(name, surname, numerTelefonu, pensja);
-                                    Pracownik.wypiszPracownikow();
+                        } else if (coChceszZrobic == 3) {
+                            System.out.println("menu przed edycja:");
+                            showList(menu);
+                            // Edycja pozycji z menu
+                            boolean idxExists = false;
+                            //sprawdzenie czy index istnieje
+                            while (!idxExists) {
+                                System.out.println("podaj id pozycji z menu, którą chcesz edytować: ");
+                                int doEdycji = in.nextInt();
+                                if (doEdycji < 0 || doEdycji > menu.size()) {
+                                    System.out.println("nie ma takiego indeksu");
                                 } else {
-                                    System.out.println("Nie wybrano poprawnej opcji");
-                                }
+                                    menu.removeIf(poz -> poz.id == doEdycji);
 
-                            } else if (wyborOpcji == 2) {
-                                ZarzadzaniePracownikami zarzadzaniePracownikami = new ZarzadzaniePracownikami();
-                                System.out.println("Kogo chcesz zwolnić?");
-                                System.out.println("Kucharz - 1\nDostawca - 2\nKelner - 3");
-                                int wybor = in.nextInt();
-                                if (wybor == 1) {
-                                    zarzadzaniePracownikami.zwolnienie(Pracownik.pracownicy);
-                                    zarzadzaniePracownikami.zwolnienieKucharza(kucharze);
-                                    Pracownik.wypiszPracownikow();
-                                } else if (wybor == 2) {
-                                    zarzadzaniePracownikami.zwolnienie(Pracownik.pracownicy);
-                                    zarzadzaniePracownikami.zwolnienieDostawca(dostawcy);
-                                    Pracownik.wypiszPracownikow();
-                                } else if (wybor == 3) {
-                                    zarzadzaniePracownikami.zwolnienie(Pracownik.pracownicy);
-                                    zarzadzaniePracownikami.zwolnienieKelnera(kelnerzy);
-                                    Pracownik.wypiszPracownikow();
+                                    //walidacja nazwy
+                                    String nazwa = "";
+                                    nazwa = zarzadzanieMenu.walidacjaNazwa(nazwa);
 
-                                } else {
-                                    System.out.println("Nie wybrano poprawnej opcji");
-                                }
+                                    //walidacja opisu
+                                    String opis = "";
+                                    opis = zarzadzanieMenu.walidacjaOpis(opis);
 
-                                if (kucharze.isEmpty() || dostawcy.isEmpty() || kelnerzy.isEmpty()) {
-//                                throw new EmptyArrayList("Uwaga!! Na danym stanowisku nie pozostał żaden pracownik, restauracja nie może dalej pracować");
+                                    //walidacja ilosci
+                                    int ilosc = 0;
+                                    ilosc = zarzadzanieMenu.walidacjaIlosci(ilosc);
+
+                                    //walidacja ceny
+                                    double cena = 0;
+                                    cena = zarzadzanieMenu.walidacjaCena(cena);
+                                    PozycjaMenu poz = new PozycjaMenu(doEdycji, nazwa, opis, cena, ilosc);
+                                    menu.add(doEdycji - 1, poz);
+                                    System.out.println("menu po edycji:");
+                                    showList(menu);
+                                    idxExists = true;
                                 }
                             }
                         }
-                    } else if (stanowisko == 1) {
-                        //kucharz
-                    } else if (stanowisko == 2) {
-                        //dostawca
-                    } else if (stanowisko == 3) {
-                        //kelner
+                        updateMenu(menu);
+
+                    } else if (zarzadzanie == 2) {
+                        System.out.println("Co chciałbyś zrobić?");
+                        System.out.println("Zatrudnienie nowego pracownika - 1\nZwolenienie pracownika - 2");
+                        int wyborOpcji = in.nextInt();
+                        if (wyborOpcji == 1) {
+                            String name = "";
+                            String surname = "";
+                            String numerTelefonu = "";
+                            double pensja = 0;
+                            ZarzadzaniePracownikami zarzadzaniePracownikami = new ZarzadzaniePracownikami();
+                            name = zarzadzaniePracownikami.dodajImie(name);
+                            surname = zarzadzaniePracownikami.dodajNazwisko(surname);
+                            numerTelefonu = zarzadzaniePracownikami.dodajNrTel(numerTelefonu);
+                            pensja = zarzadzaniePracownikami.dodajPensje(pensja);
+                            System.out.println("Kogo chcesz zatrudnić?");
+                            System.out.println("Kucharz - 1\nDostawca - 2\nKelner - 3");
+                            int wybor = in.nextInt();
+                            if (wybor == 1) {
+                                new Kucharz(name, surname, numerTelefonu, pensja);
+                                Pracownik.wypiszPracownikow();
+                            } else if (wybor == 2) {
+                                new Dostawca(name, surname, numerTelefonu, pensja);
+                                Pracownik.wypiszPracownikow();
+                            } else if (wybor == 3) {
+                                new Kelner(name, surname, numerTelefonu, pensja);
+                                Pracownik.wypiszPracownikow();
+                            } else {
+                                System.out.println("Nie wybrano poprawnej opcji");
+                            }
+
+                        } else if (wyborOpcji == 2) {
+                            ZarzadzaniePracownikami zarzadzaniePracownikami = new ZarzadzaniePracownikami();
+                            System.out.println("Kogo chcesz zwolnić?");
+                            System.out.println("Kucharz - 1\nDostawca - 2\nKelner - 3");
+                            int wybor = in.nextInt();
+                            if (wybor == 1) {
+                                zarzadzaniePracownikami.zwolnienie(Pracownik.pracownicy);
+                                zarzadzaniePracownikami.zwolnienieKucharza(kucharze);
+                                Pracownik.wypiszPracownikow();
+                            } else if (wybor == 2) {
+                                zarzadzaniePracownikami.zwolnienie(Pracownik.pracownicy);
+                                zarzadzaniePracownikami.zwolnienieDostawca(dostawcy);
+                                Pracownik.wypiszPracownikow();
+                            } else if (wybor == 3) {
+                                zarzadzaniePracownikami.zwolnienie(Pracownik.pracownicy);
+                                zarzadzaniePracownikami.zwolnienieKelnera(kelnerzy);
+                                Pracownik.wypiszPracownikow();
+
+                            } else {
+                                System.out.println("Nie wybrano poprawnej opcji");
+                            }
+
+                            if (kucharze.isEmpty() || dostawcy.isEmpty() || kelnerzy.isEmpty()) {
+//                                throw new EmptyArrayList("Uwaga!! Na danym stanowisku nie pozostał żaden pracownik, restauracja nie może dalej pracować");
+                            }
+                        }
                     }
                 } else {
                     System.out.println("Nieprawidłowe hasło, spróbuj ponownie");

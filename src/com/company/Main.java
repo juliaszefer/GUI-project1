@@ -6,20 +6,14 @@ import java.util.List;
 
 
 public class Main {
-    //TODO: 1 pozycja -> 30s po zrealizowaniu wszysztkich zamowienie: done
-    //TODO: czas > 15 min -> zamowienie przedawnione -> spytaj klienta czy dalej chce swoje zamowienie, jesli tak to 20% znizki i zamowienie wykona sie jako kolejne
-    //TODO: dzienny utarg
-    //TODO: zmniejszyc czas wykonywania dania po dodaniu nowego kucharza
-    //TODO: dostawca -> 2 min dostawa
     //TODO: spytaj klienta czy chce dac napiwek w wyskosci 10% zamowienia, powyzej 15 min dostawy mniejszy
     //TODO: wypisz zrealizowane zamowienia w odpowiedniej kolejnosci
-    //TODO: wyjatek przy wywaleniu pracownika
     //TODO: wypisanie danych o pracowniku + napiwek + zrealizowane zamowienia
 
 
 
-
     static String menuFilePath = "./data/menu.txt";
+    static String ordersHistoryPath = "./data/history.txt";
     static List<Kucharz> kucharze = new ArrayList<>();
     static List<Dostawca> dostawcy = new ArrayList<>();
     static List<Kelner> kelnerzy = new ArrayList<>();
@@ -56,6 +50,28 @@ public class Main {
             return new ArrayList<>();
         }
     }
+
+    public static ArrayList<Zamowienie> readHistory() {
+        try {
+            FileInputStream fis = new FileInputStream(ordersHistoryPath);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            ArrayList<Zamowienie> historyFile = (ArrayList<Zamowienie>) ois.readObject();
+            return historyFile;
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Wystąpił błąd podczas odczytu historii");
+            return new ArrayList<>();
+        }
+    }
+
+    public static void updateHistory(ArrayList<Zamowienie> zamowienie) {
+        try (FileOutputStream fout = new FileOutputStream(ordersHistoryPath)) {
+            ObjectOutputStream ous = new ObjectOutputStream(fout);
+            ous.writeObject(zamowienie);
+        } catch (IOException e) {
+            System.out.println("Wystąpił błąd podczas uaktualniania menu");
+        }
+    }
+
 
     public static ArrayList<PozycjaMenu> mockMenu() {
         ArrayList<PozycjaMenu> menu = new ArrayList<>();
@@ -115,21 +131,24 @@ public class Main {
 
 
 
-        new Kucharz("Marek", "Kowalski", "509867122", 3500);
-        new Kucharz("Jacek", "Góral", "603765402", 4000);
-        new Kucharz("Maria", "Posiecka", "745823099", 4200);
 
-        new Dostawca("Monika", "Pierwsza", "123456789", 2600);
+        Kuchnia.kucharze.add(new Kucharz("Marek", "Kowalski", "509867122", 3500));
+        Kuchnia.kucharze.add(new Kucharz("Jacek", "Góral", "603765402", 4000));
+        Kuchnia.kucharze.add(new Kucharz("Maria", "Posiecka", "745823099", 4200));
 
-        new Kelner("Kamil", "Drugi", "987654321", 2900);
-        new Kelner("Vanessa", "Walczyk", "456654345", 5000);
+        Dostawca.dostawcy.add(new Dostawca("Monika", "Pierwsza", "123456789", 2600));
+
+        Kelner.kelnerzy.add(new Kelner("Kamil", "Drugi", "987654321", 2900));
+        Kelner.kelnerzy.add(new Kelner("Vanessa", "Walczyk", "456654345", 5000));
 
 
         //-----------------------------------------------------------------------
 
 
         while (true) {
+            System.out.println("\n===========================");
             System.out.println("Witamy w restauracji s24690");
+            System.out.println("===========================\n");
             System.out.println("Jesteś klientem (1) czy pracownikiem (2)?");
             int idKlient = 1;
             int idPracownik = 2;
@@ -247,12 +266,14 @@ public class Main {
                     for(PozycjaMenu poz : zamowienie.pozycje){
                         menu.get(menu.indexOf(poz)).ilosc--;
                     }
+                    System.out.println("Zamówienie zostało złożone. Do zapłacenia: " + zamowienie.sumCena);
+
                     updateMenu(menu);
                     Kuchnia.dodajZamowienie(zamowienie);
                 }
             } else if (podajId == idPracownik) {
                 //----------------Strona pracownika-------------------------------------------------------
-
+                ArrayList <Zamowienie> zamowienia = readHistory();
                 System.out.println("Wpisz hasło do systemu");
                 int podajHaslo = in.nextInt();
 
@@ -262,7 +283,7 @@ public class Main {
                     int wyborStanowiska = in.nextInt();
                     if(wyborStanowiska == 0) {
                         System.out.println("Co chciałbyś zrobić?");
-                        System.out.println("Zarządzanie menu - 1\nZarządzanie pracownikami - 2");
+                        System.out.println("Zarządzanie menu - 1\nZarządzanie pracownikami - 2\nZapis historii zamówień - 3\nOdczyt historii zamówień - 4");
                         int zarzadzanie = in.nextInt();
                         if (zarzadzanie == 1) {
                             System.out.println("Co chciałbyś zrobić?");
@@ -375,13 +396,14 @@ public class Main {
                                 System.out.println("Kucharz - 1\nDostawca - 2\nKelner - 3");
                                 int wybor = in.nextInt();
                                 if (wybor == 1) {
-                                    new Kucharz(name, surname, numerTelefonu, pensja);
+                                    Kuchnia.kucharze.add(new Kucharz(name, surname, numerTelefonu, pensja));
                                     Pracownik.wypiszPracownikow();
                                 } else if (wybor == 2) {
-                                    new Dostawca(name, surname, numerTelefonu, pensja);
+                                    Dostawca.dostawcy.add(new Dostawca(name, surname, numerTelefonu, pensja));
                                     Pracownik.wypiszPracownikow();
                                 } else if (wybor == 3) {
-                                    new Kelner(name, surname, numerTelefonu, pensja);
+                                    //TODO: zrob to samo
+                                    Kelner.kelnerzy.add(new Kelner(name, surname, numerTelefonu, pensja));
                                     Pracownik.wypiszPracownikow();
                                 } else {
                                     System.out.println("Nie wybrano poprawnej opcji");
@@ -410,18 +432,45 @@ public class Main {
                                 }
 
                                 if (kucharze.isEmpty() || dostawcy.isEmpty() || kelnerzy.isEmpty()) {
-//                                throw new EmptyArrayList("Uwaga!! Na danym stanowisku nie pozostał żaden pracownik, restauracja nie może dalej pracować");
+                                    //podniesienie wyjatku
+                                    System.out.println("Uwaga!! Na danym stanowisku nie pozostał żaden pracownik, restauracja nie może dalej pracować");
                                 }
                             }
+                        }else if(zarzadzanie == 3){
+                            for(Zamowienie zamowienie : zamowienia){
+                                System.out.println(zamowienie.numerZamowienia + " - " + zamowienie.sumCena);
+                            }
+                        }else if(zarzadzanie == 4){
+                            updateHistory(zamowienia);
                         }
+
                     }else if(wyborStanowiska == 1){
                         //kucharz
                         System.out.println("Kolejka zamówień: ");
                         System.out.println(Kuchnia.getKolejkaZamowien());
+                        System.out.println("Co chciałbyś zrobić?");
+                        System.out.println("Przygotować kolejne zamówienie - 1\n");
+                        int decyzjaKucharz = in.nextInt();
+                        if(decyzjaKucharz == 1){
+                            Kuchnia.przygotujNastepneZamowienie();
+                        }
+
                     }else if(wyborStanowiska == 2){
                         //dostawca
+                        System.out.println("Co chciałbyś zrobic?");
+                        System.out.println("Dostarczyć zamówienie - 1\n");
+                        int decyzjaDostawca = in.nextInt();
+                        if(decyzjaDostawca == 1){
+                            dostawcy.get(0).dostarczZamowienie(Dostawca.zamowieniaDoDostarczenia.get(0));
+                        }
                     }else if(wyborStanowiska == 3){
                         //kelner
+                        System.out.println("Co chciałbyś zrobic?");
+                        System.out.println("Dostarczyć zamówienie - 1\n");
+                        int decyzjaKelner = in.nextInt();
+                        if(decyzjaKelner == 1){
+                            kelnerzy.get(0).dostarczZamowienie(Kelner.zamowieniaDoDostarczenia.get(0));
+                        }
                     }
                 } else {
                     System.out.println("Nieprawidłowe hasło, spróbuj ponownie");

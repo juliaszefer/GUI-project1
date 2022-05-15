@@ -4,15 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Zamowienie {
-    public static List<Zamowienie> zamowienia = new ArrayList<>();
+    public static ArrayList<Zamowienie> zamowienia = new ArrayList<>();
     // statyczna -> zawsze ta sama, nie nalezy do obiektu, nalezy do klasy
     int numerZamowienia;
     Klient klient;
     boolean czyGotowe;
+    boolean czyDostarczono;
     LocalDateTime data;
+    double sumCena;
     ArrayList<PozycjaMenu> pozycje = new ArrayList<>();
 
     public Zamowienie(Klient klient){
+        sumCena = 0;
+        czyDostarczono = false;
         czyGotowe = false;
         this.klient = klient;
         data = LocalDateTime.now();
@@ -30,6 +34,7 @@ public class Zamowienie {
     }
 
     public void dodajPozycje(PozycjaMenu pozycja){
+        sumCena += pozycja.cena;
         pozycje.add(pozycja);
     }
 

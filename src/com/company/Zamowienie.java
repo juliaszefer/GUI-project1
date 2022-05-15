@@ -10,10 +10,12 @@ public class Zamowienie {
     // statyczna -> zawsze ta sama, nie nalezy do obiektu, nalezy do klasy
     int numerZamowienia;
     Klient klient;
+    boolean czyGotowe;
     LocalDate data;
-    List<PozycjaMenu> pozycje = new ArrayList<>();
+    ArrayList<PozycjaMenu> pozycje = new ArrayList<>();
 
     public Zamowienie(Klient klient){
+        czyGotowe = false;
         LocalDate now = LocalDate.now();
         this.klient = klient;
         data = LocalDate.now();
@@ -30,7 +32,9 @@ public class Zamowienie {
         zamowienia.add(this);
     }
 
-    public void zlozZamowienie(PozycjaMenu pozycja){
+    public void dodajPozycje(PozycjaMenu pozycja){
         pozycje.add(pozycja);
     }
+
+
 }

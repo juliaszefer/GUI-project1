@@ -3,11 +3,9 @@ package com.company;
 import java.util.List;
 
 public class Kucharz extends Pracownik{
-    public Kucharz(int id, String name, String surname, String numerTelefonu, double pensja) {
-        super(id, name, surname, numerTelefonu, pensja);
+    public Kucharz(String name, String surname, String numerTelefonu, double pensja) {
+        super(name, surname, numerTelefonu, pensja);
+        Main.kucharze.add(this);
     }
 
-    public void dodajKucharza(Kucharz kucharz, List<Pracownik> pracownicy){
-        pracownicy.add(kucharz);
-    }
 }
